@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
+import Box from './Box';
+import * as tracker from './gameTracker.js'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+//Main component which manages state for the application.
+
+class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      boxes: tracker.boxChoices
+    };
+  }
+
+//Called every time a box is clicked.
+  showBox(boxClicked, idxClicked) {
+    //First unmatched click
+    if (tracker.boxTracker.length === 0) {
+      tracker.updateBox.call(this, idxClicked);
+    }
+    //Second click
+    else if (tracker.boxTracker.length === 1) {
+      //If second click doesn't equal first click
+      if (idxClicked !== tracker.boxTracker[0].index) {
+        tracker.updateBox.call(this, idxClicked);
+        //After 1 sec determine if clicks are a matching pair.
+        setTimeout(tracker.matchPair.bind(this), 1000);
+      }
+    }
+  }
+
+  render() {
+    let boxes = this.state.boxes.map((box, idx) => (
+      <Box
+        color={box.color}
+        complete={box.complete}
+        selected={box.selected}
+        onSelect={this.showBox.bind(this, box, idx)}
+        key={idx}
+      />));
+
+    return (<div>
+      <h1>Selector Game</h1>
+      {boxes}
+    </div>);
+  }
 }
+
 
 export default App;
